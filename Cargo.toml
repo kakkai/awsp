@@ -1,19 +1,19 @@
 [package]
 name = "awsp"
-version = "0.1.0"
-edition = "2018"
+version = "0.2.0"
+edition = "2025-1"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-colour = "0.6.0"
-dialoguer = "0.8.0"
-dirs = "3.0.2"
-log = "0.4.14"
-regex = "1.5.4"
-rusoto_credential = "0.47.0"
-structopt = "0.3.22"
-sysinfo = "0.19.2"
+colour = "2.1.0"
+dialoguer = "0.11.0"
+dirs = "6.0.0"
+log = "0.4.25"
+regex = "1.11.1"
+rusoto_credential = "0.48.0"
+structopt = "0.3.26"
+sysinfo = "0.33.1"
 
 [profile.release]
 opt-level = 'z'  # Optimize for size.
