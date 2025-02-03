@@ -1,3 +1,12 @@
+# Change Logs
+
+## [0.2.0]
+
+### Features
+
+- :sparkles: Add new regions
+- :sparkles: Upgrade dependencies
+
 ## [0.1.0](https://github.com/kubeopsskills/awsp/commits/)
 
 ### Bug Fixes
