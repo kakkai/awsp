@@ -59,50 +59,84 @@ use std::env;
 use std::path::PathBuf;
 use std::process::Command;
 use std::{collections::HashMap, process};
-use sysinfo::{get_current_pid, ProcessExt, Signal, System, SystemExt};
+use sysinfo::{get_current_pid, Pid, System};
 
 const REGIONS_DISPLAY: &[&str] = &[
-    "us-east-2      | Ohio",
-    "us-east-1      | N. Virginia",
-    "us-west-1      | N. California",
-    "us-west-2      | Oregon",
-    "ap-south-1     | Mumbai",
-    "ap-northeast-3 | Osaka-Local",
-    "ap-northeast-2 | Seoul",
+    "af-south-1     | Cape Town",
+    "ap-east-1      | Hong Kong",
     "ap-northeast-1 | Tokyo",
+    "ap-northeast-2 | Seoul",
+    "ap-northeast-3 | Osaka-Local",
+    "ap-south-1     | Mumbai",
+    "ap-south-2     | Hyderabad",
     "ap-southeast-1 | Singapore",
     "ap-southeast-2 | Sydney",
-    "ca-central-1   | Central",
+    "ap-southeast-3 | Jakarta",
+    "ap-southeast-4 | Melbourne",
+    "ap-southeast-5 | Malaysia",
+    "ap-southeast-7 | Thailand",
+    "ca-central-1   | Canada (Central)",
+    "ca-west-1      | Calgary",
     "cn-north-1     | Beijing",
     "cn-nortwest-1  | Ningxia",
     "eu-central-1   | Frankfurt",
+    "eu-central-2   | Zurich",
+    "eu-north-1     | Stockholm",
+    "eu-south-1     | Milan",
+    "eu-south-2     | Spain",
     "eu-west-1      | Ireland",
     "eu-west-2      | London",
     "eu-west-3      | Paris",
-    "eu-north-1     | Stockholm",
+    "il-central-1   | Tel Aviv",
+    "me-central-1   | UAE",
+    "me-south-1     | Bahrain",
+    "mx-central-1   | Mexico (Central)",
     "sa-east-1      | São Paulo",
+    "us-east-1      | N. Virginia",
+    "us-east-2      | Ohio",
+    "us-gov-east-1  | AWS GovCloud (US-East)",
+    "us-gov-west-1  | AWS GovCloud (US-West)",
+    "us-west-1      | N. California",
+    "us-west-2      | Oregon"
 ];
 
 const REGIONS: &[&str] = &[
-    "us-east-2",
-    "us-east-1",
-    "us-west-1",
-    "us-west-2",
-    "ap-south-1",
-    "ap-northeast-3",
-    "ap-northeast-2",
+    "af-south-1",
+    "ap-east-1",
     "ap-northeast-1",
+    "ap-northeast-2",
+    "ap-northeast-3",
+    "ap-south-1",
+    "ap-south-2",
     "ap-southeast-1",
     "ap-southeast-2",
+    "ap-southeast-3",
+    "ap-southeast-4",
+    "ap-southeast-5",
+    "ap-southeast-7",
     "ca-central-1",
+    "ca-west-1",
     "cn-north-1",
     "cn-nortwest-1",
     "eu-central-1",
+    "eu-central-2",
+    "eu-north-1",
+    "eu-south-1",
+    "eu-south-2",
     "eu-west-1",
     "eu-west-2",
     "eu-west-3",
-    "eu-north-1",
+    "il-central-1",
+    "me-central-1",
+    "me-south-1",
+    "mx-central-1",
     "sa-east-1",
+    "us-east-1",
+    "us-east-2",
+    "us-gov-east-1",
+    "us-gov-west-1",
+    "us-west-1",
+    "us-west-2"
 ];
 
 const AWS_DEFAULT_PROFILE: &str = "AWS_PROFILE";
@@ -186,21 +220,21 @@ fn to_key_list<K, V>(map: &HashMap<K, V>) -> Vec<&K> {
     key_list
 }
 
-fn find_shell(current_pid: i32) -> Option<PathBuf> {
+fn find_shell(current_pid: Pid) -> Option<PathBuf> {
     let s = System::new_all();
     let current_process = s.process(current_pid)?;
     let parent_pid = current_process.parent()?;
     let parent_process = s.process(parent_pid)?;
-    let shell_path = parent_process.exe();
-    Some(shell_path.to_path_buf())
+    let shell_path = parent_process.exe().iter().collect();
+    Some(shell_path)
 }
 
-fn terminate_parent_process(pid: i32) {
+fn terminate_parent_process(pid: Pid) {
     let s = System::new_all();
     let current_process = s.process(pid).unwrap();
     let parent_pid = current_process.parent().unwrap();
     let parent_process = s.process(parent_pid).unwrap();
-    parent_process.kill(Signal::Kill);
+    parent_process.kill();
 }
 
 fn display<T: ToString>(display_prompt: String, list: &[T], default: usize) -> usize {
@@ -208,7 +242,6 @@ fn display<T: ToString>(display_prompt: String, list: &[T], default: usize) -> u
         .with_prompt(display_prompt)
         .default(default)
         .items(list)
-        .paged(true)
         .interact()
         .unwrap()
 }
