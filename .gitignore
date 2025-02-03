@@ -8,5 +8,6 @@
 **/.DS_Store
 **/._.DS_Store
 
-# Ignore idea
-.idea
+# Ignore IDE
+.idea/
+.vscode/
